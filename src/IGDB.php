@@ -16,7 +16,7 @@ class IGDB
      * @var \GuzzleHttp\Client
      */
     protected $httpClient;
-    
+
     /**
      * @var integer
      */
@@ -36,7 +36,10 @@ class IGDB
         'companies' => 'companies',
         'game_engines' => 'game_engines',
         'game_modes' => 'game_modes',
+        'game_videos' => 'game_videos',
         'keywords' => 'keywords',
+        'covers' => 'covers',
+        'screenshots' => 'screenshots',
         'people' => 'people',
         'platforms' => 'platforms',
         'pulses' => 'pulses',
@@ -87,7 +90,7 @@ class IGDB
      */
     public function getCharacter($characterId, $fields = ['*'])
     {
-        
+
         $apiUrl = $this->getEndpoint('characters');
         $apiUrl .= $characterId;
 
@@ -101,7 +104,83 @@ class IGDB
             return $this->decodeSingle($apiData);
         });
 
-        
+
+    }
+
+    /**
+     * Get game cover information
+     *
+     * @param integer $coverId
+     * @param array $fields
+     * @return \StdClass
+     * @throws \Exception
+     */
+    public function getCover($coverId, $fields = ['*'])
+    {
+
+        $apiUrl = $this->getEndpoint('covers');
+        $apiUrl .= $coverId;
+
+        $params = array(
+            'fields' => implode(',', $fields)
+        );
+
+        return Cache::remember(md5($apiUrl . json_encode($params)), $this->cache, function () use ($apiUrl, $params)
+        {
+            $apiData = $this->apiGet($apiUrl, $params);
+            return $this->decodeSingle($apiData);
+        });
+    }
+
+
+    /**
+     * Get game screenshot information
+     *
+     * @param integer $screenshotId
+     * @param array $fields
+     * @return \StdClass
+     * @throws \Exception
+     */
+    public function getScreenshot($screenshotId, $fields = ['*'])
+    {
+
+        $apiUrl = $this->getEndpoint('screenshots');
+        $apiUrl .= $screenshotId;
+
+        $params = array(
+            'fields' => implode(',', $fields)
+        );
+
+        return Cache::remember(md5($apiUrl . json_encode($params)), $this->cache, function () use ($apiUrl, $params)
+        {
+            $apiData = $this->apiGet($apiUrl, $params);
+            return $this->decodeSingle($apiData);
+        });
+    }
+
+    /**
+     * Get game video information
+     *
+     * @param integer $videoId
+     * @param array $fields
+     * @return \StdClass
+     * @throws \Exception
+     */
+    public function getGameVideo($videoId, $fields = ['*'])
+    {
+
+        $apiUrl = $this->getEndpoint('game_videos');
+        $apiUrl .= $videoId;
+
+        $params = array(
+            'fields' => implode(',', $fields)
+        );
+
+        return Cache::remember(md5($apiUrl . json_encode($params)), $this->cache, function () use ($apiUrl, $params)
+        {
+            $apiData = $this->apiGet($apiUrl, $params);
+            return $this->decodeSingle($apiData);
+        });
     }
 
     /**
@@ -132,9 +211,9 @@ class IGDB
             $apiData = $this->apiGet($apiUrl, $params);
             return $this->decodeMultiple($apiData);
         });
-        
+
     }
-    
+
     /**
      * Search characters by name
      *
@@ -164,7 +243,7 @@ class IGDB
             $apiData = $this->apiGet($apiUrl, $params);
             return $this->decodeMultiple($apiData);
         });
-        
+
     }
 
     /**
@@ -183,7 +262,7 @@ class IGDB
         $params = array(
             'fields' => implode(',', $fields)
         );
-        
+
         return Cache::remember(md5($apiUrl . json_encode($params)), $this->cache, function () use ($apiUrl, $params)
         {
             $apiData = $this->apiGet($apiUrl, $params);
@@ -213,7 +292,7 @@ class IGDB
             'search' => $search,
 						'order' => $order,
         );
-        
+
         return Cache::remember(md5($apiUrl . json_encode($params)), $this->cache, function () use ($apiUrl, $params)
         {
             $apiData = $this->apiGet($apiUrl, $params);
@@ -556,7 +635,7 @@ class IGDB
      * @return \StdClass
      * @throws \Exception
      */
-    public function getPlatform($platformId, $fields = ['name', 'logo', 'slug', 'url'])
+    public function getPlatform($platformId, $fields = ['name', 'platform_logo', 'slug', 'url'])
     {
         $apiUrl = $this->getEndpoint('platforms');
         $apiUrl .= $platformId;
@@ -655,8 +734,8 @@ class IGDB
             return $this->decodeMultiple($apiData);
         });
     }
-    
-    
+
+
     /**
      * Get page information by ID
      *
@@ -680,8 +759,8 @@ class IGDB
             return $this->decodeSingle($apiData);
         });
     }
-    
-        
+
+
 
     /**
      * Get pulse information by ID
@@ -706,7 +785,7 @@ class IGDB
             return $this->decodeSingle($apiData);
         });
     }
-    
+
     /**
      * Get pulse information by ID
      *
@@ -721,7 +800,7 @@ class IGDB
         $apiUrl .= $sourceId;
 
         $params = array(
-            
+
         );
 
         return Cache::remember(md5($apiUrl . json_encode($params)), $this->cache, function () use ($apiUrl, $params)
@@ -945,7 +1024,7 @@ class IGDB
             }
             unset($params['filters']);
         }
-        
+
         $url = $url . (strpos($url, '?') === false ? '?' : '') . http_build_query($params);
 
         try {
